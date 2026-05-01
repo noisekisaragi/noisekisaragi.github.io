@@ -368,6 +368,17 @@
     }
 
     /* キャラクター */
+    /* 全画像の保存・ドラッグ防止 */
+    img {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+    /* クリック・タップが必要な画像は個別にpointer-events戻す */
+    .jiiya-mascot img, nav img, .footer-logo { pointer-events: auto; }
+
     .hero-character {
       position: absolute;
       bottom: 80px;
@@ -3005,16 +3016,20 @@
       setInterval(draw, 50);
     })();
 
-    // ギャラリー画像の右クリック・ドラッグ防止
-    document.querySelectorAll('.gallery-item img, .gallery-protect, #lightbox img').forEach(el => {
+    // 全画像の保存・右クリック・長押し防止
+    document.querySelectorAll('img').forEach(el => {
       el.addEventListener('contextmenu', e => e.preventDefault());
       el.addEventListener('dragstart', e => e.preventDefault());
+      el.addEventListener('touchstart', e => {
+        el._touchTimer = setTimeout(() => e.preventDefault(), 300);
+      }, { passive: true });
+      el.addEventListener('touchend', () => clearTimeout(el._touchTimer));
+      el.addEventListener('touchmove', () => clearTimeout(el._touchTimer));
     });
 
+    // ページ全体の右クリックメニューを画像に限り無効化
     document.addEventListener('contextmenu', e => {
-      if (e.target.closest('.gallery-item') || e.target.closest('#lightbox')) {
-        e.preventDefault();
-      }
+      if (e.target.tagName === 'IMG') e.preventDefault();
     });
 
     function openLightbox(src, label) {
