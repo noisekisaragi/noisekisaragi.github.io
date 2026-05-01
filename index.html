@@ -379,6 +379,32 @@
     /* クリック・タップが必要な画像は個別にpointer-events戻す */
     .jiiya-mascot img, nav img, .footer-logo { pointer-events: auto; }
 
+    /* 画像保護シールド（透明オーバーレイ） */
+    .img-shield {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 20;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+    /* ヒーローキャラクター用シールド */
+    .hero-char-shield {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 380px;
+      max-width: 90vw;
+      height: 75%;
+      max-height: 560px;
+      z-index: 20;
+      -webkit-touch-callout: none;
+    }
+    /* プロフィールアバター用（親をrelativeに） */
+    .profile-avatar-ring { position: relative; }
+    /* じいやカード用（親をrelativeに） */
+    .jiiya-card { position: relative; }
+
     .hero-character {
       position: absolute;
       bottom: 80px;
@@ -2341,6 +2367,7 @@
     </div>
 
     <img src="images/kisaragi.png" class="hero-character" alt="如月ノイズ">
+    <div class="hero-char-shield"></div>
     <div class="hero-fog"></div>
 
     <!-- 四隅フレーム -->
@@ -2450,6 +2477,7 @@
       <div class="profile-avatar-wrap">
         <div class="profile-avatar-ring">
           <img src="images/icon.png" class="profile-avatar" alt="如月ノイズ">
+          <div class="img-shield"></div>
         </div>
         <div class="profile-avatar-label">Kisaragi Noise</div>
       </div>
@@ -2552,8 +2580,11 @@
     <div class="jiiya-card reveal" style="position:relative;z-index:1;">
       <div class="jiiya-paws">🐾</div>
       <!-- じいや画像: images/jiiya.png を用意したら下を有効にしてください -->
-      <img src="images/jiiya.png" class="jiiya-avatar" alt="じいや"
-           onerror="this.style.display='none'; document.getElementById('jiiya-ph').style.display='flex'">
+      <div style="position:relative;display:inline-block;">
+        <img src="images/jiiya.png" class="jiiya-avatar" alt="じいや"
+             onerror="this.style.display='none'; document.getElementById('jiiya-ph').style.display='flex'">
+        <div class="img-shield"></div>
+      </div>
       <div id="jiiya-ph" class="jiiya-avatar-placeholder" style="display:none">🐱</div>
       <div class="jiiya-badge">相棒 / Partner 🐾</div>
       <div class="jiiya-name">JIIYA</div>
@@ -3025,27 +3056,11 @@
       if (e.target.tagName === 'IMG') e.preventDefault();
     });
 
-    // 重要画像に透明オーバーレイを追加（長押し保存を防ぐ最も確実な方法）
-    const protectSelectors = [
-      '.hero-character',
-      '.profile-avatar',
-      '.jiiya-avatar',
-      '.footer-logo',
-      '#splash-logo img'
-    ];
-    protectSelectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(img => {
-        const parent = img.parentElement;
-        if (getComputedStyle(parent).position === 'static') {
-          parent.style.position = 'relative';
-        }
-        const shield = document.createElement('div');
-        shield.style.cssText = 'position:absolute;inset:0;z-index:50;-webkit-touch-callout:none;';
-        shield.addEventListener('contextmenu', e => e.preventDefault());
-        shield.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
-        shield.addEventListener('touchend',    e => e.preventDefault(), { passive: false });
-        parent.appendChild(shield);
-      });
+    // シールドの長押し・右クリックを無効化
+    document.querySelectorAll('.img-shield, .hero-char-shield, .gallery-protect').forEach(el => {
+      el.addEventListener('contextmenu', e => e.preventDefault());
+      el.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
+      el.addEventListener('touchend',    e => e.preventDefault(), { passive: false });
     });
 
     function openLightbox(src, label) {
